@@ -1,0 +1,68 @@
+//Reference: Shazforiot. (n.d.). Arduino-based-temperature-sensor-Project/code at main · shazforiot/Arduino-based-temperature-sensor-Project. GitHub. https://github.com/shazforiot/Arduino-based-temperature-sensor-Project/blob/main/code
+
+int baselineTemp = 0; // baseline temperature placeholder as an integer
+int highTemp = 0; // define initial high temp as an integer
+int celsius = 0; // temp in celcius as an integer
+bool ledState = false; // track LED state
+unsigned long lastActionTime = 0; // track time of last LED activity
+bool cooldownActive = false; // track if 15-second cooldown is active
+
+void setup()
+{
+  pinMode(2, OUTPUT); // LED pin
+  digitalWrite(2, LOW); //led light off
+
+  Serial.begin(9600);
+
+  randomSeed(analogRead(A0)); // initialize random generator using noise from analog pin
+}
+
+void loop()
+{
+  baselineTemp = 10; //initial baseline temperature
+  highTemp = 50; // max temperature
+
+  // Simulate temperature between 10 and 55 degrees every 2 seconds
+  celsius = random(10, 56); // inclusive lower bound, exclusive upper bound
+  Serial.print(celsius);
+  Serial.println(" C, ");
+
+  unsigned long currentTime = millis();
+
+  // If we are in cooldown period (15s after LED activity), skip actions
+  if (cooldownActive && (currentTime - lastActionTime < 15000)) {
+    delay(2000); // simulate 2-second sensor update interval
+    return;
+  } else {
+    cooldownActive = false; // cooldown ended
+  }
+
+  // Blink LED for 30s if temp > 40 and ≤ 50
+  if (celsius > 40 && celsius <= 50) {
+    ledState = true;
+    unsigned long startTime = millis();
+    while (millis() - startTime < 30000) { // Blink for 30 seconds
+      digitalWrite(2, HIGH);
+      delay(500);
+      digitalWrite(2, LOW);
+      delay(500);
+    }
+    digitalWrite(2, LOW);
+    ledState = false;
+    lastActionTime = millis();
+    cooldownActive = true;
+  }
+
+  // Solid LED for 30s if temp > 50
+  else if (celsius > 50) {
+    ledState = true;
+    digitalWrite(2, HIGH);
+    delay(30000); // LED on for 30 seconds
+    digitalWrite(2, LOW);
+    ledState = false;
+    lastActionTime = millis();
+    cooldownActive = true;
+  }
+
+  delay(2000); // simulate sensor reading interval
+}
