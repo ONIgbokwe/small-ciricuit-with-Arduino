@@ -1,6 +1,6 @@
 Arduino MCU with sensor for detecting temperatures and controlling LED on or off state
 
-Implementad behaviour:
+Implemented behaviour:
 LED blinks for 30 seconds if temperature > 40°C and ≤ 50°C.
 LED is solid for 30 seconds if temperature > 50°C.
 After either condition, LED stays off for at least 15 seconds.
